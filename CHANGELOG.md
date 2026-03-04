@@ -1,12 +1,13 @@
 
 # AGEPRO Changelog
 
-## 4.3.7 (2026-03-00)
+## 4.3.7 (2026-03-04)
 
 - Updated AGEPRO Calucation Engine binary version based on [AGEPRO commit a525a7b](noaa-pifsc/AGEPRO@a525a7b). This binary is inteded to be the Release version of AGEPRO VERSION 4.25, which includes bug fixes to the AuxiliaryOutputFlag/OutputSummaryFlag output options. 
 - Added a check for AGEPRO *.out files, that were created from the AGEPRO Caluation Engine in the target output directory, to prevent AGEPRO-GUI from crashing if these files are not found with using "System Default" or "Notepad" output file viewers.
 - Added validation for non-zero Random number seed values for user-created agepro models.
-- CoreLib: Added Validations for General Model Options. 
+- CoreLib: Added Validations for General Model Options.
+- Minor update to AGEPRO-GUI Help manual. Added Legacy note for section *Scaling factors with VPA(Virtual Population Analysis)*
 - Added CITATION to README. 
 
 ## 4.3.6 (2025-12-05)
