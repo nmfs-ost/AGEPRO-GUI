@@ -21,7 +21,7 @@ namespace Nmfs.Agepro.Gui
     /// Launches the AGEPRO Calcuation Engine Program
     /// </summary>
     /// <param name="inpFile"></param>
-    static void LaunchAgeproCalcEngineProgram(string inpFile)
+    private static void LaunchAgeproCalcEngineProgram(string inpFile)
     {
       _ = Path.GetPathRoot(Environment.SystemDirectory);
 
@@ -39,11 +39,51 @@ namespace Nmfs.Agepro.Gui
         {
           exeProcess.WaitForExit();
         }
-        _ = MessageBox.Show("AGEPRO Done. Can be Found at:" + Environment.NewLine + Path.GetDirectoryName(inpFile), "", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+        if (Application.OpenForms.Count > 0)
+        {
+          Form activeForm = Application.OpenForms[0];
+
+          if (!activeForm.IsDisposed)
+          {
+            activeForm.Invoke((MethodInvoker)delegate
+            {
+
+              //"Fix" to place Dialog Window over to Visual Studio Debugger processes.
+              activeForm.TopMost = true;
+              activeForm.TopMost = false;
+              activeForm.Activate();
+
+              MessageBox.Show(activeForm,
+                              $"AGEPRO Done. Can Be Found At: {Environment.NewLine}{Path.GetDirectoryName(inpFile)}", "",
+                              MessageBoxButtons.OK, MessageBoxIcon.Information);
+            });
+          }
+
+        }
+
       }
       catch (Exception ex)
       {
-        _ = MessageBox.Show("An error occured when running the AGEPRO Model." + Environment.NewLine + ex.Message, "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        if (Application.OpenForms.Count > 0)
+        {
+          Form activeForm = Application.OpenForms[0];
+          if (!activeForm.IsDisposed)
+          {
+            activeForm.Invoke((MethodInvoker)delegate
+            {
+              //"Fix" to place Dialog Window over to Visual Studio Debugger processes.
+              activeForm.TopMost = true;
+              activeForm.TopMost = false;
+              activeForm.Activate();
+
+              MessageBox.Show(activeForm,
+                              $"An error occured when running the AGEPRO Model.{Environment.NewLine}{ex.Message}", "",
+                              MessageBoxButtons.OK, MessageBoxIcon.Error);
+            });
+          }
+        }
+
       }
 
     }
@@ -53,8 +93,14 @@ namespace Nmfs.Agepro.Gui
     /// </summary>
     /// <param name="outfile">AGEPRO calcuation engine output file</param>
     /// <param name="outputOptions"></param>
-    static void LaunchOutputViewerProgram(string outfile, ControlMiscOptions outputOptions)
+    private static void LaunchOutputViewerProgram(string outfile, ControlMiscOptions outputOptions)
     {
+
+      if (!File.Exists(outfile)) 
+      { 
+        throw new FileNotFoundException($"The AGEPRO output file was not found at: {outfile}");
+      }
+
       if (string.IsNullOrEmpty(outfile))
       {
         throw new ArgumentException($"'{nameof(outfile)}' cannot be null or empty.", nameof(outfile));
@@ -147,7 +193,10 @@ namespace Nmfs.Agepro.Gui
 
       try
       {
-        //TODO:Split TryCatch to accomdate (pre) launch AGEPRO and (post) output proccessing errors.
+        //------------------------------------------------------------------------------------------
+        //TODO: This function is should be splited up to mutilple section to accomidate multiple points of error 
+        //that can occur before lauching athe Agepro Model to the AGEPRO Calcuatiion engine. Refactoring this function
+        //will acoomidate llow for more specific error messages to the user and better handling of potential errors.
 
         //Set bootstrap filename to copied workDir version
         ageproData.Bootstrap.BootstrapFile = bsnFile;
